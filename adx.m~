@@ -1,4 +1,4 @@
-function [Di_plus,Di_minus,adx_out] = adx(high,low,close,period1,period2)     % Wilder's DMI (ADX)
+function adx_out = adx(high,low,close,period1,period2)     % Wilder's DMI (ADX)
 [l,w] = size(high);
 %if row vector, convert to column
 if(w==1) %is column vector
@@ -22,15 +22,13 @@ atr = ema(truerange(high,low,close),period2,1);
 DM_plus = ((up>down) & up >0).*up;
 DM_minus = ((down>up) & down >0).*down;
 
-Di_plus = 100*ema(DM_plus,period2,1)./atr
-Di_minus = 100*ema(DM_minus,period2,1)./atr
-% 
+Di_plus = 100*ema(DM_plus,period2,1)/atr;
+Di_minus = 100*ema(DM_minus,period2,1)/atr;
+
 Di_sum = Di_plus +  Di_minus;
-Di_sum  = Di_sum + (Di_sum == 0); %turn zeros into 1's
-Di_absdelta = abs(Di_plus - Di_minus)
-Di_sum = Di_sum(period2,end);
-Di_absdelta = Di_absdelta(period2:end)
-adx_out(period2:end) = 100*ema(Di_absdelta./Di_sum,period1,1);
+Di_sum  = Di_sum + Di_sum == 0; %turn zeros into 1's
+
+adx_out = 100*
 
 
 % dirmov(len) =>
