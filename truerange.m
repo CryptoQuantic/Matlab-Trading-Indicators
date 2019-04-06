@@ -3,7 +3,7 @@ function tr= truerange(high,low,close)
 
 %if row vector, convert to column
 if(w==1) %is column vector
-    nsamples = l
+    nsamples = l;
 else %is row vector
     high = high'
     low = low';

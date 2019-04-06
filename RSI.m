@@ -1,4 +1,7 @@
-function rsi_out = rsi(data, N)
+function rsi_out = rsi(data, lag)
+
+% See: https://www.macroption.com/rsi-calculation/
+
 
 [l,w] = size(data);
 %if row vector, convert to column
@@ -13,47 +16,51 @@ end
 rsi_out   = nan(nsamples,1); % intialize RSI vector 
 temp_rsi_out = nan(nsamples,1);
 
-Adva = zeros(N,1);                  % initialize positive gain vector
-Decl = zeros(N,1);                  % intiialize negative gain vector
-% Use the first N samples to calculate the intitial RSI value
-for i = 1:N
-    chg = data(i+1) - data(i);      % find difference between days
-    if chg >= 0                     % if positive change, it advanced
-        Adva(i) = chg;              % save to variable
-    else                            % if negative change, it declined
-        Decl(i) = abs(chg);         % save to variable
+UpMove = zeros(lag,1);                  
+DownMove = zeros(lag,1);                 
+
+% Calculate the intitial RSI 
+for i = 1:lag
+    chg = data(i+1) - data(i);      
+    if chg >= 0                     
+        UpMove(i) = chg;              
+    else                           
+        DownMove(i) = abs(chg);         
     end     
 end
-AvgGain = mean(Adva);               % take mean of all price increases
-AvgLoss = mean(Decl);               % take mean of all price decreases
-if AvgLoss == 0                     % if average loss is 0, RSI is 100
-    temp_rsi_out(1) = 100;                   % set RSI to 100
+AvgGain = mean(UpMove);              
+AvgLoss = mean(DownMove);              
+if AvgLoss == 0                    
+    temp_rsi_out(1) = 100;                  
 else
-    RS = AvgGain / AvgLoss;         % calculate RS value
+    RS = AvgGain / AvgLoss;         
     temp_rsi_out(1) = 100 - (100/(1+RS));    % calculate intitial RSI value
 end
-clear Adva Decl                     % clear variables
-% Now cycle through the rest of the data using the initial RSI value to
-% calculate the remaining RSI values.
-for i = (1+N):length(data)-1
-    chg = data(i+1) - data(i);      % calculate change between days
+clear UpMove DownMove                     
+
+
+%Calculate full rsi series
+for i = (1+lag):length(data)-1
+    chg = data(i+1) - data(i);      
     
-    if chg >= 0                     % if positive change, it advanced
-        Adva = chg;                 % assign change to advance variable
-        Decl = 0;                   % set declined variable to 0
-    else                            % if negative change, it declined
-        Decl = abs(chg);            % assign change to declined variable
-        Adva = 0;                   % set advanced variable to 0
+    if chg >= 0                     
+        UpMove = chg;                
+        DownMove = 0;                   
+    else                            
+        DownMove = abs(chg);           
+        UpMove = 0;                  
     end
-    AvgGain = ((AvgGain*(N-1))+Adva)/N;   % calculate next average gain
-    AvgLoss = ((AvgLoss*(N-1))+Decl)/N;   % calculate next average loss
+    AvgGain = ((AvgGain*(lag-1))+UpMove)/lag;   
+    AvgLoss = ((AvgLoss*(lag-1))+DownMove)/lag;   
     
-    if AvgLoss == 0                 % if average loss is 0, RSI = 100
-        temp_rsi_out(i-N) = 100;             % set RSI to 100
+    if AvgLoss == 0                 
+        temp_rsi_out(i-lag) = 100;             
     else
-        RS = AvgGain / AvgLoss;     % calculate RS
-        temp_rsi_out(i+1-N) = 100 - (100/(1+RS));    % calculate latest RSI
+        RS = AvgGain / AvgLoss;    
+        temp_rsi_out(i+1-lag) = 100 - (100/(1+RS));    
     end
+    
     % Fill in the nan's
-rsi_out(N+1:end) = temp_rsi_out(1:end-N);
+end
+rsi_out(lag+1:end) = temp_rsi_out(1:end-lag);
 end
