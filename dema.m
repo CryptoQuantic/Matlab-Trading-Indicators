@@ -3,10 +3,10 @@ function [dema_out,status] = dema(data,lag1,lag2)
 [l,w] = size(data);
 %if row vector, convert to column
 if(w==1) %is column vector
-    nsamples = l
+    nsamples = l;
 else %is row vector
     data = data'
-    nsamples = w
+    nsamples = w;
 end
 
 
