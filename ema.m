@@ -5,7 +5,7 @@ function [ema_out,status] = ema(data,lag,varargin)
 if(w==1) %is column vector
     nsamples = l;
 else %is row vector
-    data = data'
+    data = data';
     nsamples = w;
 end
 
