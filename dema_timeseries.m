@@ -1,4 +1,4 @@
-function [segLows,segHighs,startIndicies,endIndicies,segSlopes,startVals,endVals] = dema_timeseries(data,lag1,lag2)
+function dema_table = dema_timeseries(data,lag1,lag2)
 lookback = 2
 [l,w] = size(data);
 %if row vector, convert to column
@@ -23,12 +23,13 @@ endVals = []
 
 % Calculate MA.
 ema1 = dema(data,lag1,lag2);
+leadingNans = sum(isnan(ema1))
 
-startIndex=1;
-lastSlope = ema1(3)-ema1(1);
+startIndex=1+leadingNans; %start calculating after the nans
+lastSlope = ema1(startIndex+lookback)-ema1(startIndex);
 lastSlope = lastSlope/abs(lastSlope);
 
-for j = (2+lookback):nsamples
+for j = (startIndex+lookback):nsamples
     currentSlope = ema1(j)-ema1(j-lookback);
     currentSlope = currentSlope/abs(currentSlope);
     if(currentSlope~=lastSlope) %start new segment
@@ -51,10 +52,10 @@ for j = (2+lookback):nsamples
       startIndex = j;
       lastSlope = currentSlope;
     else
-        
+     %anything else?   
     end
-    
 end
+ dema_table = table(segLows,segHighs,startIndicies,endIndicies,segSlopes,startVals,endVals); 
 
 end
 
