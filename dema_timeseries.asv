@@ -1,4 +1,4 @@
-function [dema_table,currentSlope,currentCount] = dema_timeseries(data,lag1,lag2)
+function dema_table,currentDir,currentCount = dema_timeseries(data,lag1,lag2)
 lookback = 2
 [l,w] = size(data);
 %if row vector, convert to column
@@ -52,8 +52,9 @@ for j = (startIndex+lookback):nsamples
       startIndex = j;
       lastSlope = currentSlope;
       currentCount=0;
+      currentDir = currentSlope;
     else
-        currentCount=currentCount+1;
+        currentCount
      %anything else?   
     end
 end
